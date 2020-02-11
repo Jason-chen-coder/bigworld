@@ -20,7 +20,7 @@
         <a href="#" class="logo"><img src="images/logo02.png" alt="logo"></a>
         <div class="user_info">
             <img src="images/2.jpg" alt="person">
-            <span>欢迎&nbsp;&nbsp;李思思</span>
+            <span>欢迎&nbsp;&nbsp;<i style="font-style: normal;"></i></span>
             <b>管理员</b>
         </div>
         <!-- 左侧导航栏 -->
@@ -53,6 +53,24 @@
         <div class="main" id="main_body">
 
         </div>
+
     </div>
+    
+    <script>    
+    //已进入页面就发送ajax请求，请求用户信息数据
+    $.ajax({
+        //令牌已经在ajaxSet中设置
+        type:"get",
+        url:"http://localhost:8080/api/v1/admin/user/info",
+        success:function(res){
+            console.log(res)
+           //设置个人信息内容
+            $(".user_info img").attr("src",res.data.userPic);
+            $(".user_center_link img ").attr("src",res.data.userPic);
+            $(".user_info i").text(res.data.nickname)
+           //退出功能（删除token令牌，页面跳 转）
+        }
+    })
+    </script>
 </body>
 </html>
