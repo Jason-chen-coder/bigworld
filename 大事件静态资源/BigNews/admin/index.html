@@ -113,24 +113,18 @@
                     })
                 })
             })
-
-            //点击左侧导航栏以及菜单样式进行改变
-            $(".menu>.level01").on("click", function () {
-                //点击文章管理时,直接触发文章列表点击
-                $(".level02>li:eq(0)").trigger("click");
-                //修改一级菜单被点击的子项样式
+            $(".menu .level01").on("click",function(){
                 $(this).addClass("active").siblings("div").removeClass("active");
-                if ($(this).index() == 1) {
-                    $(".menu>.level02").slideToggle();
-                    $(this).find("b").toggleClass("rotate0")
+                if($(this).index()==1){
+                    $(".level02 li:eq(0)").trigger("click")
+                    $("ul.level02").slideToggle();
+                    $(".menu .level01 .icon-arrowdownl").toggleClass("rotate0");
                 }else{
-                    $(".level02").slideUp();
-                    $(".level01:eq(1)").find("b").removeClass("rotate0");
+                    $("ul.level02").slideUp();
+                    $(".menu .level01 .icon-arrowdownl").removeClass("rotate0");
                 }
-                
             })
-            //点击二级菜单样式进行改变
-            $(".level02>li").on("click",function(){
+            $(".level02 li").on("click",function(){
                 $(this).addClass("active").siblings("li").removeClass("active")
             })
         })
@@ -160,4 +154,25 @@
           })
        })
     }
-}) -->
+}) 
+
+   //点击左侧导航栏以及菜单样式进行改变
+            $(".menu>.level01").on("click", function () {
+                //点击文章管理时,直接触发文章列表点击
+                $(".level02>li:eq(0)").trigger("click");
+                //修改一级菜单被点击的子项样式
+                $(this).addClass("active").siblings("div").removeClass("active");
+                if ($(this).index() == 1) {
+                    $(".menu>.level02").slideToggle();
+                    $(this).find("b").toggleClass("rotate0")
+                }else{
+                    $(".level02").slideUp();
+                    $(".level01:eq(1)").find("b").removeClass("rotate0");
+                }
+                
+            })
+            //点击二级菜单样式进行改变
+            $(".level02>li").on("click",function(){
+                $(this).addClass("active").siblings("li").removeClass("active")
+            })
+-->

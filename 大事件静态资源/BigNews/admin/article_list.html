@@ -74,6 +74,81 @@
         </div>
     </div>
 </body>
-   
-   
+<!-- 选项卡模板引擎 -->
+<script id="selecttpl" type="text/html">
+    <option value="">所有分类</option>
+    {{each data v}}
+    <option value="{{v.id}}">{{v.name}}</option>
+    {{/each}}
+</script>
+<script id="articletpl" type="text/html">
+    {{each data.data v}}
+    <tr>
+        <td>{{v.title}}</td>
+        <td>{{v.author}}</td>
+        <td>{{v.category}}</td>
+        <td class="text-center">{{v.date}}</td>
+        <td class="text-center">{{v.state}}</td>
+        <td class="text-center">
+            <a href="article_edit.html" class="btn btn-default btn-xs" data-id="{{v.id}}">编辑</a>
+            <a href="javascript:void(0);" class="btn btn-danger btn-xs delete" data-id="{{v.id}}">删除</a>
+        </td>
+    </tr>
+    {{/each}}
+</script>
+<script>
+    //查询所有的文章类别,然后显示在选项卡处
+    
+    $(function () {
+        //1.发送ajax请求查询所有文章类别
+        $.ajax({
+            type: "get",
+            url: BigNew.category_list,
+            success: function (res) {
+                if(res.code ==200){
+                    // 将搜索的所有文章类别显示在选项卡处
+                    let selecthtml = template("selecttpl",res);
+                    $("#selCategory").html(selecthtml);
+                }
+            }
+        })
+        //2.点击筛选按钮,进行文章搜索
+        $("#btnSearch").on("click",function(e){
+            //获取文章类别的id,文章状态
+            e.preventDefault();
+            let class_id =$("#selCategory").val();
+            let class_status = $("#selStatus").val()
+            console.log(class_id,class_status);
+            //发送ajax请求,进行文章搜索,并全都显示在表格中
+            $.ajax({
+                url:BigNew.article_query,
+                data:{
+                    type:class_id,
+                    perpage:6
+                },
+                success:function(res){
+                    console.log(res)
+                    let articles =template("articletpl",res);
+                    $("table tbody").html(articles);
+                }
+            })
+        })
+        // 3.已进入页面就请求所有文章,并显示在表格中
+         //发送ajax请求,进行文章搜索,并全都显示在表格中
+         $.ajax({
+                url:BigNew.article_query,
+                data:{
+                    type:"",
+                    perpage:6
+                },
+                success:function(res){
+                    console.log(res)
+                    let articles =template("articletpl",res);
+                    $("table tbody").html(articles);
+                }
+            })
+
+    })
+</script>
+
 </html>

@@ -92,46 +92,41 @@
 </body>
 <script>
     $(function () {
-        //一进入页面就进行用户信息查询
+        //进入页面进行用户信息查询
         $.ajax({
             type: "get",
             url: BigNew.user_detail,
             success: function (res) {
                 console.log(res);
-                if (res.code == 200) {
-                    // $("input.username").val(res.data.username);
-                    // $("input.password").val()
-                    // $("input.email").val(res.data.email)
-                    // $("input.nickname").val(res.data.nickname)
-                    for (var key in res.data) {
-                            //key 
-                            $('input.' + key).val(res.data[key]);
-                        }
-                    $("img.user_pic").attr("src", res.data.userPic)
+                for (key in res.data) {
+                    $("input." + key).val(res.data[key]);
                 }
+                $("img.user_pic").attr("src", res.data.userPic);
+
             }
         })
         //图片预览功能
-        $("#exampleInputFile").on("change", function (e) {
-            e.preventDefault();
-            let image = this.files[0];
-            let imgurl = URL.createObjectURL(image);
-            $(".user_pic").attr("src", imgurl);
-        });
-        //点击修改按钮,提交修改用户信息申请
+        $("#exampleInputFile").on("change", function () {
+            let file = this.files[0];
+            let imgurl = URL.createObjectURL(file);
+            $("img.user_pic").attr("src", imgurl);
+
+        })
+
+        //点击修改按钮,进行用户信息修改
         $(".btn-edit").on("click", function (e) {
-            let newinfo = document.querySelector(".article_form");
-            let fd1 = new FormData(newinfo);
-            e.preventDefault();
-            //发送ajax请求
+            e.preventDefault()
+            let user = document.querySelector(".article_form");
+            let fd = new FormData(user);
             $.ajax({
-                type: "post",
+                type: 'post',
                 url: BigNew.user_edit,
-                data: fd1,
+                data: fd,
                 contentType: false,
                 processData: false,
                 success: function (res) {
-                    if (res.code === 200) {
+                    console.log(res);
+                    if (res.code == 200) {
                         $(".modal-body").text("修改成功")
                         $('#myModal').modal(); //弹出提示框
                         $('#myModal').on('hidden.bs.modal', function (e) {
@@ -145,3 +140,54 @@
 </script>
 
 </html>
+
+
+<!-- //一进入页面就进行用户信息查询
+$.ajax({
+    type: "get",
+    url: BigNew.user_detail,
+    success: function (res) {
+        console.log(res);
+        if (res.code == 200) {
+            // $("input.username").val(res.data.username);
+            // $("input.password").val()
+            // $("input.email").val(res.data.email)
+            // $("input.nickname").val(res.data.nickname)
+            for (var key in res.data) {
+                    //key 
+                    $('input.' + key).val(res.data[key]);
+                }
+            $("img.user_pic").attr("src", res.data.userPic)
+        }
+    }
+})
+//图片预览功能
+$("#exampleInputFile").on("change", function (e) {
+    e.preventDefault();
+    let image = this.files[0];
+    let imgurl = URL.createObjectURL(image);
+    $(".user_pic").attr("src", imgurl);
+});
+//点击修改按钮,提交修改用户信息申请
+$(".btn-edit").on("click", function (e) {
+    let newinfo = document.querySelector(".article_form");
+    let fd1 = new FormData(newinfo);
+    e.preventDefault();
+    //发送ajax请求
+    $.ajax({
+        type: "post",
+        url: BigNew.user_edit,
+        data: fd1,
+        contentType: false,
+        processData: false,
+        success: function (res) {
+            if (res.code === 200) {
+                $(".modal-body").text("修改成功")
+                $('#myModal').modal(); //弹出提示框
+                $('#myModal').on('hidden.bs.modal', function (e) {
+                    parent.window.location.reload();
+                })
+            }
+        }
+    })
+}) -->

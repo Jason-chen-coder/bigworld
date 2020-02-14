@@ -16,19 +16,22 @@
     <script src="./libs/template-web.js"></script>
     <script src="./libs/http.js"></script>
 </head>
-<script id="all_class" type="text/html">
+<script id="article_class" type="text/html">
     {{each data v}}
     <tr>
+        <!-- 隐藏域 -->
+        <input type="hidden" name="id" value="{{v.id}}">
         <td>{{v.name}}</td>
         <td>{{v.slug}}</td>
         <td class="text-center">
-            <a href="javascript:void(0)" data-toggle="modal" data-id="{{v.id}}" class=" btn btn-info btn-xs">编辑</a>
-            <a href="javascript:void(0)" data-id="{{v.id}}" class="btn btn-danger btn-xs">删除</a>
+            <a href="javascript:void(0)" data-id="{{v.id}}" data-toggle="modal" data-target="#exampleModal"
+                class="edit_btn btn btn-info btn-xs">编辑</a>
+            <a href="javascript:void(0)" class="btn btn-danger btn-xs delete_btn" data-id="{{v.id}}" >删除</a>
         </td>
     </tr>
     {{/each}}
-    
-    </script>
+</script>
+
 <body>
     <div class="container-fluid">
         <div class="common_title">
@@ -44,39 +47,260 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- <tr>
                         <td>奇趣事</td>
                         <td>funny</td>
                         <td class="text-center">
-                            <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                            <a href="javascript:void(0)" data-toggle="modal"  data-target="#exampleModal" class=" btn btn-info btn-xs">编辑</a>
                             <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
-                                data-target="#myModal">新增分类</a>
+                            <!-- 按钮有了data-target="#exampleModal" data-toggle="modal"这个属性,只要点击到就会展示模态框 -->
+                            <a href="#" class="btn btn-success newclass" id="xinzengfenlei" data-toggle="modal"
+                                data-target="#exampleModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
-    <script> 
-        $(function(){
-            //进入页面发送ajax请求
+    <!-- 模态框 -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">新增分类</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="">
+                        <!-- 隐藏域 -->
+                        <input type="hidden" name="id" id="hiddensq" value="">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称:</label>
+                            <input type="text" name="name" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类别名:</label>
+                            <input type="text" name="slug" class="form-control" id="message-text">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="confirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        //进入页面进行文章类别查询
+        $(function () {
             $.ajax({
-                type:"get",
-                url:BigNew.category_list,
-                // dataType:"json",
-                success:function(res){
+                type: "get",
+                url: BigNew.category_list,
+                dataType: "json",
+                success: function (res) {
                     console.log(res);
-                    let allclass_tpl = template("all_class",res);
-                    $(".table tbody").html(allclass_tpl);
+                    if (res.code === 200) {
+                        let classtpl = template("article_class", res);
+                        $("table tbody").html(classtpl);
+                    } else {
+                        alert(res.msg);
+                    }
                 }
             })
+            //点击新增分类/点击编辑按钮，弹出模态框判断点击的是什么按钮
+            $('#exampleModal').on('show.bs.modal', function (e) {
+                console.log(e.relatedTarget)
+                // e.relatedTarget获取的是dom元素
+                if ($(e.relatedTarget).hasClass("newclass")) {
+                    console.log("点击了新增按钮");
+                    $("#confirm").addClass("btn-success").removeClass("btn-primary");
+                    //点击确定按钮，先获取输入内容，后发送ajax请求
+                    $("#confirm").on("click", function () {
+                        let name = $("#recipient-name").val().trim();
+                        let slug = $("#message-text").val().trim();
+                        console.log(name, slug);
+                        if (name == "" || slug == "") {
+                            alert("名称和别名都要填上哦！")
+                        } else {
+                            $.ajax({
+                                type: "post",
+                                url: BigNew.category_add,
+                                data: {
+                                    name: name,
+                                    slug: slug
+                                },
+                                success: function (res) {
+                                    if (res.code == 201) {
+                                        // 清空输入框内容
+                                        $("#recipient-name").val("");
+                                        $("#message-text").val("");
+                                        //清空出入框内容也可以使用reset()
+                                        // $("form")[0].reset();
+                                        //关闭模态框
+                                        $('#exampleModal').modal('hide')
+                                        //刷新页面
+                                        window.location.reload();
+                                    }
+
+                                }
+                            })
+                        }
+
+                    })
+                } else if ($(e.relatedTarget).hasClass("edit_btn")) {
+                    console.log("点击了编辑按钮");
+                    $("#confirm").removeClass("btn-success").addClass("btn-primary");
+                    $("#exampleModalLabel").text("编辑分类");
+                    $("#confirm").text("编辑");
+                    //点击了编辑按钮将类别的名字和slug显示在模态框上
+                    let edit_name = $(e.relatedTarget).parent().prev().prev().text().trim();
+                    let edit_slug = $(e.relatedTarget).parent().prev().text().trim();
+                    $("#recipient-name").val(edit_name);
+                    $("#message-text").val(edit_slug);
+                    // console.log(edit_name,edit_slug);
+                    // 获取点击编辑的类别ID
+                    // console.log($(e.relatedTarget).attr("data-id"))
+                    let edit_id = $(e.relatedTarget).attr("data-id").trim();
+                    console.log(edit_slug, edit_name, edit_id);
+                    //点击确认编辑按钮，发送ajax请求
+                    $("#confirm").on("click", function () {
+                        // console.log(edit_slug, edit_name, edit_id);
+                        // let new_name = $("#recipient-name").val();
+                        // let new_slug = $("#message-text").val();
+
+                        // 使用jquery中的serialize（）方法直接获取表单内所有内容
+                        $("#exampleModal form #hiddensq").attr("value", edit_id);
+                        let data = $("#exampleModal form").serialize();
+                        // console.log(new_slug, new_name, edit_id);
+                        console.log(data);
+                        $.ajax({
+                            type: "post",
+                            url: BigNew.category_edit,
+                            // data: {
+                            //     id: edit_id,
+                            //     name: new_name,
+                            //     slug: new_slug
+                            // },
+                            data: data,
+                            success: function (res) {
+                                console.log(res)
+                                if (res.code = 200) {
+                                    alert("编辑成功");
+                                    $('#exampleModal').modal('hide');
+                                    window.location.reload();
+                                }
+                            }
+                        })
+                    })
+                    $(" button.close").on("click",function(){
+                        $("form")[0].reset();
+                        console.log(1);
+                    })
+
+                    //点击取消按钮，清空输入框内容
+                    $(".btn-default").on("click", function () {
+                        $('#exampleModal').modal('hide')
+                        // $("#recipient-name").val("");
+                        // $("#message-text").val("");
+                        //清空出入框内容也可以使用reset()
+                        $("form")[0].reset();
+                    })
+                }
+
+            })
         })
-        </script>
+            //点击删除按钮，删除该条文章
+            $("tbody").on("click",".delete_btn",function(){
+                // 获取点击的ID
+                let dele_id = $(this).attr("data-id");
+                // console.log(dele_id);
+                if(confirm("你确定要删除吗？")){
+                    //发送删除ajax请求
+                    $.ajax({
+                        type:"post",
+                        url:BigNew.category_delete,
+                        data:{
+                            id:dele_id
+                        },
+                        success:function(res){
+                            console.log(res);
+                            if(res.code==204){
+                                // window.location.reload();
+                                //也直接删除这一行
+                                $(this).parent().parent().remove();
+                            }
+                        }
+                    })
+                }
+            })
+    </script>
+
 </html>
+
+<!-- $(function(){
+    //进入页面发送ajax请求
+    $.ajax({
+        type:"get",
+        url:BigNew.category_list,
+        // dataType:"json",
+        success:function(res){
+            console.log(res);
+            let allclass_tpl = template("all_class",res);
+            $(".table tbody").html(allclass_tpl);
+        }
+    })
+}) 
+
+ // 点击新增分类按钮,弹出模态框,填入新增内容,进行文章分类新增
+            $("#xinzengfenlei").on("click", function (e) {
+                e.preventDefault();
+                //点击确定,获取输入框内容,发起ajax请求
+                $("#confirm").on("click", function () {
+                    let newname = $("#recipient-name").val().trim();
+                    let newslug = $("#message-text").val().trim();
+
+                    if (newname == "" || newslug == "") {
+                        alert("分类名称和分类别名都要填上哦");
+                    } else {
+                        console.log(newname, newslug);
+                        //输入内容不为空,开始发送ajax请求
+                        $.ajax({
+                            type: "post",
+                            url: BigNew.category_add,
+                            data: {
+                                name: newname,
+                                slug: newslug
+                            },
+                            success: function (res) {
+                                // console.log(res)
+
+                                // ajax返回结果
+                                if (res.code == 201) {
+                                    alert(res.msg);
+                                    $('#exampleModal').modal('hide')
+                                    $('#exampleModal').on('hidden.bs.modal',
+                                        function (e) {
+                                            // 页面更新
+                                            window.location.reload();
+                                        })
+                                } else {
+                                    alert("创建失败");
+                                }
+
+                            }
+                        })
+
+                    }
+                })
+
+            })
+
+-->
