@@ -14,6 +14,9 @@
     <script src="./libs/http.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 引入分页插件文件 -->
+    <script src="./libs/jquery.twbsPagination.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
 </head>
 
 <body>
@@ -70,9 +73,14 @@
                 </tbody>
             </table>
             <div class="row text-center">
+                <!-- 分页插件结构 -->
+                <ul id="pagination-demo" class="pagination-sm" style="margin:0 auto;"></ul>
+                <p>没有数据!</p>
             </div>
         </div>
+
     </div>
+
 </body>
 <!-- 选项卡模板引擎 -->
 <script id="selecttpl" type="text/html">
@@ -90,65 +98,216 @@
         <td class="text-center">{{v.date}}</td>
         <td class="text-center">{{v.state}}</td>
         <td class="text-center">
-            <a href="article_edit.html" class="btn btn-default btn-xs" data-id="{{v.id}}">编辑</a>
+            <a href="article_edit.html?id={{v.id}}" class="btn btn-default btn-xs"  data-id="{{v.id}}">编辑</a>
             <a href="javascript:void(0);" class="btn btn-danger btn-xs delete" data-id="{{v.id}}">删除</a>
         </td>
     </tr>
     {{/each}}
 </script>
 <script>
-    //查询所有的文章类别,然后显示在选项卡处
-    
     $(function () {
+        //查询所有的文章类别,然后显示在选项卡处
         //1.发送ajax请求查询所有文章类别
         $.ajax({
             type: "get",
             url: BigNew.category_list,
             success: function (res) {
-                if(res.code ==200){
+                if (res.code == 200) {
                     // 将搜索的所有文章类别显示在选项卡处
-                    let selecthtml = template("selecttpl",res);
+                    let selecthtml = template("selecttpl", res);
                     $("#selCategory").html(selecthtml);
                 }
             }
         })
-        //2.点击筛选按钮,进行文章搜索
-        $("#btnSearch").on("click",function(e){
-            //获取文章类别的id,文章状态
-            e.preventDefault();
-            let class_id =$("#selCategory").val();
-            let class_status = $("#selStatus").val()
-            console.log(class_id,class_status);
-            //发送ajax请求,进行文章搜索,并全都显示在表格中
-            $.ajax({
-                url:BigNew.article_query,
-                data:{
-                    type:class_id,
-                    perpage:6
-                },
-                success:function(res){
-                    console.log(res)
-                    let articles =template("articletpl",res);
-                    $("table tbody").html(articles);
-                }
-            })
-        })
-        // 3.已进入页面就请求所有文章,并显示在表格中
-         //发送ajax请求,进行文章搜索,并全都显示在表格中
-         $.ajax({
-                url:BigNew.article_query,
-                data:{
-                    type:"",
-                    perpage:6
-                },
-                success:function(res){
-                    console.log(res)
-                    let articles =template("articletpl",res);
-                    $("table tbody").html(articles);
-                }
-            })
 
+
+        let myPage = 1; //用来保存当前操作页码
+        //封装函数，请求文章数据
+        let getData = function (page, callback) {
+            //发送ajax请求，查询所有文章
+            $.ajax({
+                url: BigNew.article_query,
+                type: "get",
+                data: {
+                    type: $("#selCategory").val(),
+                    state: $("#selStatus").val(),
+                    page: page,
+                    perpage: 6,
+                },
+                success: function (res) {
+                        let articletpl = template("articletpl", res);
+                        $("tbody").html(articletpl);
+                    if(res.data.data.length!=0&&callback != null){
+                        $("#pagination-demo").show();
+                        $("#pagination-demo").next().hide();
+                            callback(res);
+                    }else if(res.data.data.length == 0 && myPage==1) {
+                        $("#pagination-demo").hide();
+                        $("#pagination-demo").next().show();
+                    }else if(res.data.totalPage ==myPage-1&&res.data.data.length==0){
+                        myPage--;
+                        $("#pagination-demo").twbsPagination("changeTotalPages",res.data.totalPage,myPage);
+                    }
+                }
+            })
+        }
+        //2.进入页面就请求所有文章的数据
+        getData(1, function (res) {
+            //设置页码插件
+            $('#pagination-demo').twbsPagination({
+                totalPages: res.data.totalPage, //总页数
+                visiblePages: 7, //可见页数
+                //点击插件上的按钮后的回调函数
+                onPageClick: function (event, page) {
+                    // console.log(page) //当前点击的页数
+                    $('#page-content').text('Page ' + page);
+                    myPage = page;//将当前操作页保存至变量中
+                    getData(myPage,null);
+                },
+                first: "首页",
+                prev: "上一页",
+                next: "下一页",
+                last: "最后一页"
+            });
+        });
+        //3.点击筛选按钮，请求数据
+        $("#btnSearch").on("click", function (e) {
+            e.preventDefault();
+            getData(1, function(res){
+                //更新页码插件的总页数
+                $("#pagination-demo").twbsPagination("changeTotalPages",res.data.totalPage,1);
+            });
+        })
+        //4.点击删除按钮，删除文章
+        $("tbody").on("click",".delete",function(e){
+            e.preventDefault();
+           if(confirm("你确定要删除吗?")){
+               
+             //发送ajax请求删除文章
+            // console.log($(this).attr("data-id"))
+            $.ajax({
+                type:"post",
+                url:BigNew.article_delete,
+                data:{
+                    id:$(this).attr("data-id")
+                },
+                success:function(res){
+                    if(res.code==204){
+                        alert(res.msg);
+                        getData(myPage,function(res){
+                                $("#pagination-demo").twbsPagination("changeTotalPages",res.data.totalPage,myPage);
+                        });
+                    }
+                }
+            })
+        }
     })
+})
+      
+  
 </script>
 
 </html>
+
+
+<!-- 
+
+//     let myPage = 1; //用来保存当前操作页码值
+
+
+//     //封装获取页面数据函数
+//     let getData = function (page, callback) {
+//         $.ajax({
+//             url: BigNew.article_query,
+//             data: {
+//                 type: $("#selCategory").val().trim(),
+//                 state: $("#selStatus").val().trim(),
+//                 perpage: 3, //每页显示的文章数
+//                 page: page
+//             },
+//             success: function (res) {
+//                 let articles = template("articletpl", res);
+//                 $("table tbody").html(articles);
+//                 //判断是否有数据totalPage是否为0,如果没有数据就将页码插件隐藏
+//                 if (res.data.totalPage != 0 && callback != null) {
+//                     $("#pagination-demo").show();
+//                     $("#pagination-demo").next("p").hide();
+//                     callback(res);
+//                     console.log(1);
+//                 }
+//                 else if (res.data.totalPage == 0) {
+//                     //没有数据就将页码插件隐藏
+//                     $("#pagination-demo").hide()
+//                     $("#pagination-demo").next("p").show();
+//                 }
+//                  if (res.data.data.length == 0&&res.data.totalPage==myPage-1) {
+//                            console.log(2);
+//                            myPage--;
+//                            $("#pagination-demo").twbsPagination("changeTotalPages", res.data.totalPage,myPage); 
+//                         }
+//             }
+//         })
+//     }
+
+
+//     //2.点击筛选按钮,进行文章搜索
+//     $("#btnSearch").on("click", function (e) {
+//         //获取文章类别的id,文章状态
+//         e.preventDefault();
+//         //发送ajax请求,进行文章搜索,并全都显示在表格中
+//         getData(1, function (res) {
+//             $("#pagination-demo").twbsPagination("changeTotalPages", res.data.totalPage, 1);
+//         })
+//     })
+
+
+//     // 3.一进入页面就请求所有文章,并显示在表格中
+//     //发送ajax请求,进行文章搜索,并全都显示在表格中
+//     getData(1, function (res) {
+//         // //设置分页插件的结构
+//         $('#pagination-demo').twbsPagination({
+//             totalPages: res.data.totalPage, //请求返回的总页数
+//             visiblePages: 7, //可见页数
+//             //点击插件上的按钮后的回调函数
+//             onPageClick: function (event, page) {
+//                 $('#page-content').text('Page ' + page);
+//                 //点击了插件上的页码按钮发送ajax请求,进行页码跳转
+//                 getData(page, null);
+//                 myPage = page; //把当前页面的页码值保存起来
+//             },
+//             first: "首页",
+//             prev: "上一页",
+//             next: "下一页",
+//             last: "最后一页"
+//         });
+//     })
+
+//     //删除文章功能
+//     $("tbody").on("click", ".delete", function (e) {
+//         e.preventDefault();
+//         if (confirm("你确定要删除吗?")) {
+//             //获取被点击删除的文章id
+//             let delete_id = $(this).attr("data-id");
+//             // console.log(delete_id);
+//             // 发送ajax请求删除文章
+//             $.ajax({
+//                 type: "post",
+//                 url: BigNew.article_delete,
+//                 data: {
+//                     id: delete_id
+//                 },
+//                 success: function (res) {
+//                     // console.log(res)
+//                     if (res.code == 204) {
+//                         //删除文章成功,重新获取当前页码数内容,传入保存好的当前页码值
+//                         getData(myPage, function (res) {
+//                             console.log(res);
+//                             //更新页面插件的总页数,并定格在当前操作页码页面
+//                             // $("#pagination-demo").twbsPagination("changeTotalPages", res.data.totalPage,myPage); 
+//                         // }
+//                         });
+//                     }
+//                 }
+//             })
+//         }
+//     }) -->
