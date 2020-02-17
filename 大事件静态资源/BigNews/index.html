@@ -28,7 +28,7 @@
         <div class="menu">
             <div class="menu_collapse fl">
                 <a href="javascript:;" class="level_one"><i class="fa fa-list-ul"></i>全部分类</a>
-                <ul class="level_two">
+                <ul class="level_two" style="text-align: center;">
                     <li class="up"></li>
                     <li><a href="./list.html">最 新</a></li>
                     <li><a href="./list.html">科 技</a></li>
@@ -227,6 +227,7 @@
     <script src="./js/template-web.js"></script>
     <!-- 引入jq文件 -->
     <script src="./js/jquery-1.12.4.min.js"></script>
+
     <!-- 最新资讯模板 -->
     <script id="lastest_new" type="text/html">
         {{each data v}}
@@ -243,6 +244,7 @@
         </div>
         {{/each}}
     </script>
+
     <!-- 热点图模板 -->
     <script id="hot_pic" type="text/html">
         {{each data v}}
@@ -256,6 +258,7 @@
         </li>
         {{/each}}
     </script>
+
     <!-- 一周热门排行模板 -->
     <script id="rank" type="text/html">
         {{each data v}}
@@ -271,6 +274,7 @@
                 {{$index+1}}</span><a href="./article.html?id={{v.id}}">{{v.title}}</a></li>
         {{/each}}
     </script>
+
     <!-- 最新评论模板 -->
     <script id="new_comment" type="text/html">
         {{each data v}}
@@ -283,18 +287,21 @@
         {{/if}}
         {{/each}}
     </script>
+
     <!-- 焦点关注模板 -->
     <script id="focus" type="text/html">
         {{each data v}}
         <li><a href="./article.html?id={{v.id}}">{{v.intro}}</a></li>
         {{/each}}
     </script>
+
     <!-- 全部分类模板 -->
     <script id="articleclass" type="text/html">
         {{each data v}}
         <li><a href="./list.html?id={{v.id}}">{{v.name}}</a></li>
         {{/each }}
     </script>
+
     <script>
         $(function () {
             //1.最新资讯部分
@@ -324,7 +331,7 @@
                 type: "get",
                 url: "http://localhost:8080/api/v1/index/rank",
                 success: function (res) {
-                    console.log(res);
+                    // console.log(res);
                     let rankhtml = template("rank", res);
                     $(".hotrank_list").html(rankhtml);
                 }
@@ -335,7 +342,7 @@
                 type: "get",
                 url: "http://localhost:8080/api/v1/index/latest_comment ",
                 success: function (res) {
-                    console.log(res);
+                    // console.log(res);
                     let commenthtml = template("new_comment", res);
                     $(".comment_list").html(commenthtml);
                 }
@@ -347,7 +354,7 @@
                 type: "get",
                 url: "http://localhost:8080/api/v1/index/attention",
                 success: function (res) {
-                    console.log(res);
+                    // console.log(res);
                     if (res.code == 200) {
                         let focushtml = template("focus", res);
                         $(".guanzhu_list").html(focushtml);
@@ -363,12 +370,20 @@
                     if (res.code == 200) {
                         let classhtml = template("articleclass", res);
                         $(".left_menu").html(classhtml);
-                        $(".level_two").html(classhtml);
+                        $(".level_two").html(" <li class='up'></li>"+classhtml);
                     }
                 }
             })
         
-            
+            //7.文章搜索功能
+            $(".search_btn").on("click",function(e){
+                let sea_inp = $(".search_txt").val().trim();
+                if(sea_inp==""){
+                    alert("请输入搜索内容");
+                }else{
+                   window.location.href="./list.html?search="+sea_inp;
+                }
+            })
         })
 
     </script>

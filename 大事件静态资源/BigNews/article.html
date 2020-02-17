@@ -28,23 +28,23 @@
         <div class="menu">
             <div class="menu_collapse fl">
                 <a href="javascript:;" class="level_one"><i class="fa fa-list-ul"></i>全部分类</a>
-                <ul class="level_two">
-                    <li class="up"></li>
+                <ul class="level_two" style="text-align: center;">
+                    <!-- <li class="up"></li>
                     <li><a href="#">最 新</a></li>
                     <li><a href="#">科 技</a></li>
                     <li><a href="#">股 市</a></li>
                     <li><a href="#">商 品</a></li>
                     <li><a href="#">外 汇</a></li>
-                    <li><a href="#">公 司</a></li>
+                    <li><a href="#">公 司</a></li> -->
                 </ul>
             </div>
             <ul class="left_menu fl">
-                <li><a href="#">最 新</a></li>
+                <!-- <li><a href="#">最 新</a></li>
                 <li><a href="#">科 技</a></li>
                 <li><a href="#">股 市</a></li>
                 <li><a href="#">商 品</a></li>
                 <li><a href="#">外 汇</a></li>
-                <li><a href="#">公 司</a></li>
+                <li><a href="#">公 司</a></li> -->
             </ul>
             <ul class="right_menu fr">
                 <li><a href="#">科技专题</a></li>
@@ -222,7 +222,8 @@
     <!-- 文章详细内容模板 -->
     <script id="article_info" type="text/html">
         <div class="breadcrumb">
-            当前位置： <a href="./index.html">首页</a> &gt; <a href="#">{{data.category}}</a> &gt; 文章详情
+            当前位置： <a href="./index.html">首页</a> &gt; <a href="./list.html?id={{data.categoryId}}">{{data.category}}</a>
+            &gt; 文章详情
         </div>
         <h3 class="article_title">{{data.title}}</h3>
         <div class="article_info">{{data.author}} 发布于 {{data.date}}&nbsp;&nbsp;&nbsp;分类:
@@ -233,8 +234,16 @@
 
         </div>
         <div class="article_links">
+            {{if data.prev!=null}}
             上一篇： <a href="./article.html?id={{data.prev.id}}">{{data.prev.title}}</a><br>
+            {{else}}
+            上一篇： <a href="#">没有上一篇</a><br>
+            {{/if}}
+            {{if data.next!=null}}
             下一篇： <a href="./article.html?id={{data.next.id}}">{{data.next.title}}</a>
+            {{else}}
+            下一篇： <a href="#">没有下一篇</a>
+            {{/if}}
         </div>
     </script>
 
@@ -290,22 +299,52 @@
         {{/each}}
     </script>
 
+    <!-- 全部分类模板 -->
+    <script id="articleclass" type="text/html">
+        {{each data v}}
+        <li><a href="./list.html?id={{v.id}}">{{v.name}}</a></li>
+        {{/each }}
+    </script>
+
     <script>
         $(function () {
+
             //1.进入页面获取url中的文章id
             let article_id = window.location.search.split("=")[1];
             console.log(article_id);
-            // 1.1通过id查询文章详细信息
+            if (article_id == null) {
+                //如果只直接进来的就跳转回首页
+                window.location.href = "./index.html";
+            } else {
+                console.log("发起申请");
+                // 1.1通过id查询文章详细信息
+                $.ajax({
+                    type: "get",
+                    url: "http://localhost:8080/api/v1/index/article",
+                    data: {
+                        id: article_id
+                    },
+                    success: function (res) {
+                        console.log("申请结束");
+                        console.log(res);
+                        if (res.code == 200) {
+                            console.log(res)
+                            let articletpl = template("article_info", res);
+                            $(".article_box").html(articletpl);
+                        }
+                    }
+                })
+            }
+
+            //2.全部分类
             $.ajax({
                 type: "get",
-                url: "http://localhost:8080/api/v1/index/article",
-                data: {
-                    id: article_id
-                },
+                url: "http://localhost:8080/api/v1/index/category",
                 success: function (res) {
                     if (res.code == 200) {
-                        let articletpl = template("article_info", res);
-                        $(".article_box").html(articletpl);
+                        let classhtml = template("articleclass", res);
+                        $(".left_menu").html(classhtml);
+                        $(".level_two").html(" <li class='up'></li>" + classhtml);
                     }
                 }
             })
@@ -315,7 +354,7 @@
                 type: "get",
                 url: "http://localhost:8080/api/v1/index/rank",
                 success: function (res) {
-                    console.log(res);
+                    // console.log(res);
                     let rankhtml = template("rank", res);
                     $(".hotrank_list").html(rankhtml);
                 }
@@ -326,7 +365,7 @@
                 type: "get",
                 url: "http://localhost:8080/api/v1/index/latest_comment ",
                 success: function (res) {
-                    console.log(res);
+                    // console.log(res);
                     let commenthtml = template("new_comment", res);
                     $(".comment_list").html(commenthtml);
                 }
@@ -337,13 +376,15 @@
                 type: "get",
                 url: "http://localhost:8080/api/v1/index/attention",
                 success: function (res) {
-                    console.log(res);
+                    // console.log(res);
                     if (res.code == 200) {
                         let focushtml = template("focus", res);
                         $(".guanzhu_list").html(focushtml);
                     }
                 }
             })
+
+
 
             //5.获取文章评论列表
             $.ajax({
@@ -353,43 +394,54 @@
                     articleId: article_id
                 },
                 success: function (res) {
-                    console.log(res);
+                    // console.log(res);
                     if (res.code == 200) {
-                        console.log(1);
+                        // console.log("获取页面成功，加载页面中。。。");
                         let commenttpl = template("comment_list", res);
                         $(".comment_list_con").html(commenttpl);
+                        // console.log("加载页面完成");
                     }
                 }
             })
-        
+
             //6.点击评论按钮,发表评论
-            $(".comment_sub").on("click",function(e){
+            $(".comment_sub").on("click", function (e) {
                 e.preventDefault();
-                if($(".comment_name").val()==""||$(".comment_input").val()==""){
+                if ($(".comment_name").val() == "" || $(".comment_input").val() == "") {
                     alert("请输入你的用户名和评论内容");
-                }else{
+                } else {
                     $.ajax({
-                    type:"post",
-                    url: "http://localhost:8080/api/v1/index/post_comment",
-                    data:{
-                        author:$(".comment_name").val(),
-                        content:$(".comment_input").val(),
-                        articleId:article_id
-                    },
-                    success:function(res){
-                       if(res.code==201){
-                           alert("发表成功");
-                           //发表成功后要清空输入框:
-                           $(".comment_name").val("");
-                           $(".comment_input").val("");
-                       }else{
-                           alert("发表失败")
-                       }
-                    }
-                })
+                        type: "post",
+                        url: "http://localhost:8080/api/v1/index/post_comment",
+                        data: {
+                            author: $(".comment_name").val(),
+                            content: $(".comment_input").val(),
+                            articleId: article_id
+                        },
+                        success: function (res) {
+                            if (res.code == 201) {
+                                alert("发表成功");
+                                //发表成功后要清空输入框:
+                                $(".comment_name").val("");
+                                $(".comment_input").val("");
+                            } else {
+                                alert("发表失败")
+                            }
+                        }
+                    })
                 }
-               
             })
+
+            //7.文章搜索功能
+            $(".search_btn").on("click", function (e) {
+                let sea_inp = $(".search_txt").val().trim();
+                if (sea_inp == "") {
+                    alert("请输入搜索内容");
+                } else {
+                    window.location.href = "./list.html?search=" + sea_inp;
+                }
+            })
+
 
         })
     </script>
