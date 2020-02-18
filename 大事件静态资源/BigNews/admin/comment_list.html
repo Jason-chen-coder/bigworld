@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>评论列表</title>
+  <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/iconfont.css">
+  <link rel="stylesheet" href="css/main.css">
+  <script src="./libs/jquery-1.12.4.min.js"></script>
+  <script src="./libs/template-web.js"></script>
+  <script src="./libs/http.js"></script>
+  <!-- 页码插件 -->
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css"> -->
+  <!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
+  <script
+    src="../../josecebe-twbs-pagination-1.3.1-50-g5103bc4/josecebe-twbs-pagination-5103bc4/jquery.twbsPagination.min.js">
+  </script>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="common_title">
+      评论列表
+    </div>
+    <div class="container-fluid common_con">
+      <table class="table table-striped table-bordered table-hover mp20">
+        <thead>
+          <tr>
+            <th>作者</th>
+            <th>评论</th>
+            <th>评论在</th>
+            <th>提交于</th>
+            <th>状态</th>
+            <th class="text-center" width="100">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>小周</td>
+            <td>这是一条测试评论，欢迎光临</td>
+            <td>《世界，你好》</td>
+            <td>2017-07-04 12:00:00</td>
+            <td>已批准</td>
+            <td class="text-center">
+              <a href="javascript:void(0);;" class="btn btn-warning btn-xs">拒绝</a>
+              <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr class="danger">
+            <td>小右</td>
+            <td>你好啊，交个朋友好吗？</td>
+            <td>《世界，你好》</td>
+            <td>2017-07-06 14:10:00</td>
+            <td>待审核</td>
+            <td class="text-center">
+              <a href="javascript:void(0);;" class="btn btn-info btn-xs">批准</a>
+              <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr class="danger">
+            <td>老周</td>
+            <td>不好</td>
+            <td>《世界，你好》</td>
+            <td>2017-07-09 22:22:00</td>
+            <td>待审核</td>
+            <td class="text-center">
+              <a href="javascript:void(0);;" class="btn btn-info btn-xs">批准</a>
+              <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr class="danger">
+            <td>中周</td>
+            <td>How are you?</td>
+            <td>《世界，你好》</td>
+            <td>2017-07-09 18:22:00</td>
+            <td>待审核</td>
+            <td class="text-center">
+              <a href="javascript:void(0);;" class="btn btn-info btn-xs">批准</a>
+              <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr>
+            <td>小右</td>
+            <td>I am fine thank you and you?</td>
+            <td>《世界，你好》</td>
+            <td>2017-07-11 22:22:00</td>
+            <td>已批准</td>
+            <td class="text-center">
+              <a href="javascript:void(0);;" class="btn btn-warning btn-xs">拒绝</a>
+              <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr>
+            <td>哈哈</td>
+            <td>一针见血</td>
+            <td>《世界，你好》</td>
+            <td>2017-07-22 09:10:00</td>
+            <td>已批准</td>
+            <td class="text-center">
+              <a href="javascript:void(0);;" class="btn btn-warning btn-xs">拒绝</a>
+              <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr>
+            <td>武秀英</td>
+            <td>外影广条同取水权科速工与。矿身面却属次养导务作者用品油调。高石期品极放存斗一号口消别共去。</td>
+            <td>《世界，你好》</td>
+            <td>1970-03-15 11:31:50</td>
+            <td>已拒绝</td>
+            <td class="text-center">
+              <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr>
+            <td>胡娟</td>
+            <td>采参什正面准观提干在易东统。走部系取团商机酸科往证和流物实则。入程用指学行利划影现清关织方。</td>
+            <td>《第四篇示例文章》</td>
+            <td>1970-03-23 14:16:57</td>
+            <td>已拒绝</td>
+            <td class="text-center">
+              <a href="javascript:void(0);;" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr>
+            <td>邵艳</td>
+            <td>国新研目心思力品家织通还如周气长多。话它思造约众系压程它过去全。必导则达发前何西最老四关向。</td>
+            <td>《第一篇示例文章》</td>
+            <td>1970-04-19 12:34:27</td>
+            <td>已拒绝</td>
+            <td class="text-center">
+              <a href="javascript:editTr( 'trashed',10 );" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+          <tr>
+            <td>唐军</td>
+            <td>好联律物联使进很们有严这里月之。实养件矿商除政究定划必火起划六。内百那则变次引持只情车各地织持。</td>
+            <td>《第四篇示例文章》</td>
+            <td>1970-04-24 11:22:29</td>
+            <td>已批准</td>
+            <td class="text-center">
+              <a href="javascript:editTr( 'rejected',11 );" class="btn btn-warning btn-xs">拒绝</a>
+              <a href="javascript:editTr( 'trashed',11 );" class="btn btn-danger btn-xs">删除</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row text-center">
+
+        <ul id="pagination-demo" class="pagination-sm"></ul>
+      </div>
+
+    </div>
+  </div>
+  <!-- 评论列表模板 -->
+  <script id="comments" type="text/html">
+    {{each data.data v}}
+    {{if v.state =="待审核"}}
+    <tr class="danger">
+      {{else}}
+    <tr>
+      {{/if}}
+    <tr>
+      <td>{{v.author}}</td>
+      <td>{{v.content}}</td>
+      <td>{{v.title}}</td>
+      <td>{{v.date}} {{v.time}}</td>
+      <td>{{v.state}}</td>
+      <td class="text-center">
+        {{if v.state=="已通过"}}
+        <a href="javascript:void(0);" data-id="{{v.id}}" class="btn btn-warning btn-xs">拒绝</a>
+        {{else if v.state=="待审核"}}
+        <a href="javascript:void(0);" data-id="{{v.id}}" class="btn btn-info btn-xs">批准</a>
+        {{/if}}
+        <a href="javascript:void(0);" data-id="{{v.id}}" class="btn btn-danger btn-xs">删除</a>
+      </td>
+    </tr>
+    {{/each}}
+  </script>
+  <script>
+    $(function () {
+      //封装获取评论列表并渲染评论的函数
+      let getdata = function (page,callback) {
+        $.ajax({
+          type: "get",
+          url: "http://localhost:8080/api/v1/admin/comment/search",
+          data: {
+            page: page,
+            perpage: 3
+          },
+          success: function (res) {
+            if (res.code == 200) {
+              let arttpl = template("comments", res);
+              $("table tbody").html(arttpl);
+              console.log(res); //评论总页数
+              if(callback!=null){
+                callback(res);
+              }
+            }
+          }
+        })
+      }
+
+      let myPage=1;
+      //1.发送ajax请求获取评论列表
+      getdata(1,function(res){
+        $('#pagination-demo').twbsPagination({
+              totalPages: res.data.totalPage, //总页数
+              visiblePages: 7, //可见页数
+              //点击插件上的按钮后的回调函数
+              onPageClick: function (event, page) {
+                console.log(page) //当前点击的页数
+                $('#page-content').text('Page ' + page);
+                myPage=page;
+                getdata(myPage,null)
+              },
+              first: "首页",
+              prev: "上一页",
+              next: "下一页",
+              last: "最后一页"
+            });
+      });
+
+      //2.点击拒绝按钮，拒绝评论显示
+      $("tbody").on("click", ".btn.btn-warning", function (e) {
+        e.preventDefault();
+        //发送ajax请求
+        if (confirm("确定要拒绝吗？")) {
+          $.ajax({
+            type: "post",
+            url: "http://localhost:8080/api/v1/admin/comment/reject",
+            data: {
+              id: $(this).attr("data-id")
+            },
+            success: function (res) {
+              if (res.code == 200) {
+                alert(res.msg);
+                getdata(myPage,null);
+              }
+            }
+          })
+        }
+      })
+      
+      //3.点击批准按钮，同意评论显示
+      $("tbody").on("click", ".btn.btn-info", function (e) {
+        e.preventDefault();
+        //发送ajax请求
+        if (confirm("确定要批准吗？")) {
+          $.ajax({
+            type: "post",
+            url: "http://localhost:8080/api/v1/admin/comment/pass",
+            data: {
+              id: $(this).attr("data-id")
+            },
+            success: function (res) {
+              if (res.code == 200) {
+                alert(res.msg);
+                getdata(myPage,null);
+              }
+            }
+          })
+        }
+      })
+
+      //4.点击删除按钮，删除评论
+      $("tbody").on("click", ".btn.btn-danger", function (e) {
+        e.preventDefault();
+        //发送ajax请求
+        if (confirm("确定要删除吗？")) {
+          $.ajax({
+            type: "post",
+            url: "http://localhost:8080/api/v1/admin/comment/delete",
+            data: {
+              id: $(this).attr("data-id")
+            },
+            success: function (res) {
+              console.log(res);
+     
+              if (res.code == 200) {
+                alert(res.msg);
+                getdata(myPage,function(res){
+                  console.log(res.data.data.length);
+                  if(res.data.data.length!=0){
+                    $("#pagination-demo").twbsPagination("changeTotalPages", res.data.totalPage, myPage);
+                  }
+                  else if(res.data.data.length==0){
+                    myPage--;
+                    $("#pagination-demo").twbsPagination("changeTotalPages", res.data.totalPage, myPage);
+                  }
+                });
+              }
+            }
+          })
+        }
+      })
+
+
+    })
+  </script>
+</body>
+
+</html>
+
+
+
+ <!-- //1.2页码插件部分
+            $('#pagination-demo').twbsPagination({
+              totalPages: res.data.totalPage, //总页数
+              visiblePages: 7, //可见页数
+              //点击插件上的按钮后的回调函数
+              onPageClick: function (event, page) {
+                console.log(page) //当前点击的页数
+                $('#page-content').text('Page ' + page);
+              },
+              first: "首页",
+              prev: "上一页",
+              next: "下一页",
+              last: "最后一页"
+            });
+            $("#pagination-demo").twbsPagination("changeTotalPages", res.data.totalPage, 1); -->
