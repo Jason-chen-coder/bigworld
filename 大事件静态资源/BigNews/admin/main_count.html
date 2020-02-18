@@ -180,12 +180,10 @@
             // 使用刚指定的配置项和数据显示图表。
             myChart.setOption(option);
         }
-    </script>
 
-    <!-- 环形图 -->
-    <script>
+    // <!-- 环形图 -->
         //3.各类型文章数量统计
-        let class_info = [];
+        var class_info = [];
         var class_name = [];
         var class_arr = [];
         $.ajax({
@@ -201,13 +199,18 @@
                 for (let i = 0; i < class_info.length; i++) {
                     class_name[i] = class_info[i].name;
                 }
-                console.log(class_name.length)
+                // console.log(class_name.length);
                 //修改输出结果的属性名;
                 class_arr = JSON.parse(JSON.stringify(class_info).replace(/articles/g, "value"));
+                // console.log(class_arr)
+               
+            }
+        })
 
+        //!!!!!!注意!!!!!!:增加定时器原因是为了解决ajax请求完成之后,保证ajax返回的数据可以正常访问到;
+            setTimeout(function(){
                 // 基于准备好的dom，初始化echarts实例
                 var myChart1 = echarts.init(document.getElementById('pie_show'));
-
                 option1 = {
                     title: {
                         left: 'center',
@@ -220,7 +223,7 @@
                     legend: {
                         orient: 'horizontal',
                         x: 'center',
-                        data: class_name, /////////////////////////////////////////////////
+                        data: class_name, //////数据展示部分(所有文章类名)//////
                         top: 30
                     },
                     color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
@@ -237,19 +240,30 @@
                                     fontWeight: 'bold'
                                 }
                             }
-                        }, /////////////////////////////////////////////////////////////////////////////////////////////////
-                        data: class_arr
+                        }, 
+                        data: class_arr//////数据展示部分(所有文章类名,及数量)//////
                     }]
                 };
                 // 使用刚指定的配置项和数据显示图表。
                 myChart1.setOption(option1);
-
-
-            }
-        })
+                // console.log(class_info,class_name,class_arr);
+            },100)
+    
     </script>
     <!-- 柱状图 -->
     <script>
+        // 1.发送ajax请求,日文章访问量数据
+        $.ajax({
+            type:"get",
+            url: "http://localhost:8080/api/v1/admin/data/visit",
+            headers: {
+                'Authorization': "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODY3MjA3NTcsImlhdCI6MTU4MTkyMDc1N30.GvaO6j6Sa_I46btwWoVIoTWrqbEfdHo5o1T7AwTryZc52RdGCTGtLlc93BLlY2CNXm8DIRex1s01d5vqOqebrrvqS3vnEpgPaSQov91DFJ-Z5K6PvXCS-SnBX7PtlTQD_uaZbSTz8cuMv5-Y_fmoTbBCVj2dHhltDNS_T808nVU"
+            },
+            success:function(res){
+                console.log(res);
+            }
+        })
+
         // 基于准备好的dom，初始化echarts实例
         var myChart2 = echarts.init(document.getElementById('column_show'));
 
