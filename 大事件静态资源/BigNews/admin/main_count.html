@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <script type="text/javascript" src="./libs/echarts.js"></script>
+    <script src="../js/jquery-1.12.4.min.js"></script>
 </head>
 
 <body>
@@ -19,25 +20,25 @@
         <div class="row spannel_list">
             <div class="col-sm-3 col-xs-6">
                 <div class="spannel">
-                    <em>10015</em><span>篇</span>
+                    <em id="totalArticle">......</em><span>篇</span>
                     <b>总文章数</b>
                 </div>
             </div>
             <div class="col-sm-3 col-xs-6">
                 <div class="spannel scolor01">
-                    <em>123</em><span>篇</span>
+                    <em id="dayArticle">......</em><span>篇</span>
                     <b>日新增文章数</b>
                 </div>
             </div>
             <div class="col-sm-3 col-xs-6">
                 <div class="spannel scolor02">
-                    <em>35</em><span>条</span>
+                    <em id="totalComment">......</em><span>条</span>
                     <b>评论总数</b>
                 </div>
             </div>
             <div class="col-sm-3 col-xs-6">
                 <div class="spannel scolor03">
-                    <em>123</em><span>条</span>
+                    <em id="dayComment">......</em><span>条</span>
                     <b>日新增评论数</b>
                 </div>
             </div>
@@ -60,11 +61,41 @@
     </div>
 
 
-    <!-- 折线图 -->
+
     <script>
-        var json = '{"code":200,"msg":"获取成功","date":[{"date":"2019-05-20","count":23},{"date":"2019-05-21","count":19},{"date":"2019-05-22","count":29},{"date":"2019-05-23","count":24},{"date":"2019-05-24","count":28},{"date":"2019-05-25","count":28},{"date":"2019-05-26","count":19},{"date":"2019-05-27","count":25},{"date":"2019-05-28","count":25}]}';
-        var obj = JSON.parse(json);
-        loadEchars(obj);
+        //1.统计分析部分
+        //1.1发送ajax请求，获取统计数据
+        $.ajax({
+            type: "get",
+            url: "http://localhost:8080/api/v1/admin/data/info",
+            headers: {
+                "Authorization": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODY3MjA3NTcsImlhdCI6MTU4MTkyMDc1N30.GvaO6j6Sa_I46btwWoVIoTWrqbEfdHo5o1T7AwTryZc52RdGCTGtLlc93BLlY2CNXm8DIRex1s01d5vqOqebrrvqS3vnEpgPaSQov91DFJ-Z5K6PvXCS-SnBX7PtlTQD_uaZbSTz8cuMv5-Y_fmoTbBCVj2dHhltDNS_T808nVU"
+            },
+            success: function (res) {
+                // console.log(res);
+                $("#totalArticle").text(res.totalArticle);
+                $("#dayArticle").text(res.dayArticle);
+                $("#totalComment").text(res.totalComment);
+                $("#dayComment").text(res.dayComment);
+            }
+        })
+
+        //  2.折线图 
+        // var json = '{"code":200,"msg":"获取成功","date":[{"date":"2019-05-20","count":23},{"date":"2019-05-21","count":19},{"date":"2019-05-22","count":29},{"date":"2019-05-23","count":24},{"date":"2019-05-24","count":28},{"date":"2019-05-25","count":28},{"date":"2019-05-26","count":19},{"date":"2019-05-27","count":25},{"date":"2019-05-28","count":25}]}';
+        // var obj = JSON.parse(json);
+        // loadEchars(obj);
+        //2.1.发送ajax请求，获取每日文章增加数量
+        $.ajax({
+            type: "get",
+            url: "http://localhost:8080/api/v1/admin/data/article",
+            headers: {
+                'Authorization': "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODY3MjA3NTcsImlhdCI6MTU4MTkyMDc1N30.GvaO6j6Sa_I46btwWoVIoTWrqbEfdHo5o1T7AwTryZc52RdGCTGtLlc93BLlY2CNXm8DIRex1s01d5vqOqebrrvqS3vnEpgPaSQov91DFJ-Z5K6PvXCS-SnBX7PtlTQD_uaZbSTz8cuMv5-Y_fmoTbBCVj2dHhltDNS_T808nVU"
+            },
+            success: function (res) {
+                //将数据导入echarts中
+                loadEchars(res);
+            }
+        })
 
         function loadEchars(obj) {
             // 基于准备好的dom，初始化echarts实例
@@ -105,8 +136,12 @@
                         dataZoom: {
                             yAxisIndex: 'none'
                         },
-                        dataView: { readOnly: false },
-                        magicType: { type: ['line', 'bar'] },
+                        dataView: {
+                            readOnly: false
+                        },
+                        magicType: {
+                            type: ['line', 'bar']
+                        },
                         restore: {},
                         saveAsImage: {}
                     },
@@ -116,18 +151,17 @@
                     type: 'value',
                     boundaryGap: [0, '100%']
                 },
-                series: [
-                    {
-                        name: '新增文章',
-                        type: 'line',
-                        smooth: true,
-                        // symbol: 'none',
-                        sampling: 'average',
-                        itemStyle: {
-                            color: '#f80'
-                        },
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                series: [{
+                    name: '新增文章',
+                    type: 'line',
+                    smooth: true,
+                    // symbol: 'none',
+                    sampling: 'average',
+                    itemStyle: {
+                        color: '#f80'
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                                 offset: 0,
                                 color: 'rgba(255,136,0,0.39)'
                             }, {
@@ -137,11 +171,11 @@
                             {
                                 offset: 1,
                                 color: 'rgba(255,222,0,0.00)'
-                            }])
-                        },
-                        data: data
-                    }
-                ],
+                            }
+                        ])
+                    },
+                    data: data
+                }],
             }
             // 使用刚指定的配置项和数据显示图表。
             myChart.setOption(option);
@@ -150,52 +184,69 @@
 
     <!-- 环形图 -->
     <script>
-        // 基于准备好的dom，初始化echarts实例
-        var myChart1 = echarts.init(document.getElementById('pie_show'));
-
-        option1 = {
-            title: {
-                left: 'center',
-                text: '分类文章数量比',
+        //3.各类型文章数量统计
+        let class_info = [];
+        var class_name = [];
+        var class_arr = [];
+        $.ajax({
+            type: "get",
+            url: "http://localhost:8080/api/v1/admin/data/category",
+            headers: {
+                'Authorization': "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODY3MjA3NTcsImlhdCI6MTU4MTkyMDc1N30.GvaO6j6Sa_I46btwWoVIoTWrqbEfdHo5o1T7AwTryZc52RdGCTGtLlc93BLlY2CNXm8DIRex1s01d5vqOqebrrvqS3vnEpgPaSQov91DFJ-Z5K6PvXCS-SnBX7PtlTQD_uaZbSTz8cuMv5-Y_fmoTbBCVj2dHhltDNS_T808nVU"
             },
-            tooltip: {
-                trigger: 'item',
-                formatter: "{a} <br/>{b}: {c} ({d}%)"
-            },
-            legend: {
-                orient: 'horizontal',
-                x: 'center',
-                data: ['爱生活', '趣美味', '爱旅行', '爱电影', '爱游泳'],
-                top: 30
-            },
-            color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
-            series: [
-                {
-                    name: '分类名称',
-                    type: 'pie',
-                    radius: ['50%', '70%'],
-                    avoidLabelOverlap: false,
-                    label: {
-                        emphasis: {
-                            show: true,
-                            textStyle: {
-                                fontSize: '30',
-                                fontWeight: 'bold'
-                            }
-                        }
-                    },
-                    data: [
-                        { value: 335, name: '爱生活' },
-                        { value: 310, name: '趣美味' },
-                        { value: 234, name: '爱旅行' },
-                        { value: 135, name: '爱电影' },
-                        { value: 548, name: '爱游泳' }
-                    ]
+            success: function (res) {
+                class_info = res.date;
+                // console.log(class_info);
+                //单独取出文章类名
+                for (let i = 0; i < class_info.length; i++) {
+                    class_name[i] = class_info[i].name;
                 }
-            ]
-        };
-        // 使用刚指定的配置项和数据显示图表。
-        myChart1.setOption(option1);
+                console.log(class_name.length)
+                //修改输出结果的属性名;
+                class_arr = JSON.parse(JSON.stringify(class_info).replace(/articles/g, "value"));
+
+                // 基于准备好的dom，初始化echarts实例
+                var myChart1 = echarts.init(document.getElementById('pie_show'));
+
+                option1 = {
+                    title: {
+                        left: 'center',
+                        text: '分类文章数量比',
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    legend: {
+                        orient: 'horizontal',
+                        x: 'center',
+                        data: class_name, /////////////////////////////////////////////////
+                        top: 30
+                    },
+                    color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
+                    series: [{
+                        name: '分类名称',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            emphasis: {
+                                show: true,
+                                textStyle: {
+                                    fontSize: '30',
+                                    fontWeight: 'bold'
+                                }
+                            }
+                        }, /////////////////////////////////////////////////////////////////////////////////////////////////
+                        data: class_arr
+                    }]
+                };
+                // 使用刚指定的配置项和数据显示图表。
+                myChart1.setOption(option1);
+
+
+            }
+        })
     </script>
     <!-- 柱状图 -->
     <script>
@@ -209,14 +260,14 @@
             },
             tooltip: {
                 trigger: 'axis',
-                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-                    type: 'line'        // 默认为直线，可选为：'line' | 'shadow'
+                axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                    type: 'line' // 默认为直线，可选为：'line' | 'shadow'
                 },
-                
+
             },
             legend: {
                 data: ['爱生活', '趣美味', '爱旅行', '爱电影', '爱游泳'],
-                top:30
+                top: 30
             },
             grid: {
                 left: '3%',
@@ -224,20 +275,15 @@
                 bottom: '3%',
                 containLabel: true
             },
-            xAxis: [
-                {
-                    type: 'category',
-                    data: ['一月', '二月', '三月', '四月']
-                }
-            ],
-            yAxis: [
-                {
-                    type: 'value'
-                }
-            ],
+            xAxis: [{
+                type: 'category',
+                data: ['一月', '二月', '三月', '四月']
+            }],
+            yAxis: [{
+                type: 'value'
+            }],
             color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
-            series: [
-                {
+            series: [{
                     name: '爱生活',
                     type: 'bar',
                     data: [320, 332, 301, 334]
